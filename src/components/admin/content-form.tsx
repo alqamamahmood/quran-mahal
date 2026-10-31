@@ -6,6 +6,7 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Card, CardBody } from "@/components/ui/card";
 import { createContent } from "@/app/admin/actions";
+import { FileUploader } from "@/components/admin/file-uploader";
 import type { ContentType } from "@/lib/types";
 
 const TYPES: Array<{ v: ContentType; label: string }> = [
@@ -41,6 +42,16 @@ export function ContentForm({
 }) {
   const [type, setType] = useState<ContentType>(defaultType);
   const { t } = useLanguage();
+  // Direct-upload targets (filled by FileUploader, still editable as links)
+  const [provider, setProvider] = useState("youtube");
+  const [videoUrl, setVideoUrl] = useState("");
+  const [thumbUrl, setThumbUrl] = useState("");
+  const [audioUrl, setAudioUrl] = useState("");
+  const [audioCoverUrl, setAudioCoverUrl] = useState("");
+  const [fileUrl, setFileUrl] = useState("");
+  const [bookCoverUrl, setBookCoverUrl] = useState("");
+  const [pdfUrl, setPdfUrl] = useState("");
+  const [risalaCoverUrl, setRisalaCoverUrl] = useState("");
 
   return (
     <form action={createContent} className="space-y-5 max-w-3xl">
@@ -121,15 +132,29 @@ export function ContentForm({
       {type === "video" && (
         <Card><CardBody className="space-y-4">
           <h2 className="font-bold">{t("admin.form.videoDetails")}</h2>
+          <FileUploader
+            bucket="media-public"
+            prefix="videos/"
+            accept="video/*"
+            buttonLabel={t("admin.upload.chooseVideo")}
+            onUploaded={(url) => { setVideoUrl(url); setProvider("upload"); }}
+          />
           <Field label={`${t("admin.form.provider")} *`}>
-            <select name="video_provider" className={inputCls} defaultValue="youtube">
+            <select name="video_provider" className={inputCls} value={provider} onChange={(e) => setProvider(e.target.value)}>
               <option value="youtube">YouTube (official embed)</option>
               <option value="upload">Uploaded file (authorized storage URL)</option>
               <option value="external">External authorized URL</option>
             </select>
           </Field>
-          <Input name="video_url" label={t("admin.form.videoUrl")} placeholder="https://www.youtube.com/watch?v=…  ya  https://storage…/video.mp4" dir="ltr" />
-          <Input name="thumbnail_url" label={t("admin.form.thumbUrl")} dir="ltr" />
+          <Input name="video_url" label={t("admin.form.videoUrl")} placeholder="https://www.youtube.com/watch?v=…  ya  https://storage…/video.mp4" dir="ltr" value={videoUrl} onChange={(e) => setVideoUrl(e.target.value)} />
+          <FileUploader
+            bucket="covers"
+            prefix="covers/"
+            accept="image/*"
+            buttonLabel={t("admin.upload.chooseCover")}
+            onUploaded={setThumbUrl}
+          />
+          <Input name="thumbnail_url" label={t("admin.form.thumbUrl")} dir="ltr" value={thumbUrl} onChange={(e) => setThumbUrl(e.target.value)} />
           <Input name="duration_seconds" label={t("admin.form.duration")} type="number" min={0} dir="ltr" />
           <p className="text-xs text-neutral-500">{t("admin.form.ytNote")}</p>
         </CardBody></Card>
@@ -138,8 +163,22 @@ export function ContentForm({
       {type === "audio" && (
         <Card><CardBody className="space-y-4">
           <h2 className="font-bold">{t("admin.form.audioDetails")}</h2>
-          <Input name="audio_url" label={t("admin.form.audioUrl")} placeholder="https://storage…/audio.mp3" dir="ltr" required />
-          <Input name="cover_url" label={t("admin.form.coverUrl")} dir="ltr" />
+          <FileUploader
+            bucket="media-public"
+            prefix="audio/"
+            accept="audio/*"
+            buttonLabel={t("admin.upload.chooseAudio")}
+            onUploaded={setAudioUrl}
+          />
+          <Input name="audio_url" label={t("admin.form.audioUrl")} placeholder="https://storage…/audio.mp3" dir="ltr" required value={audioUrl} onChange={(e) => setAudioUrl(e.target.value)} />
+          <FileUploader
+            bucket="covers"
+            prefix="covers/"
+            accept="image/*"
+            buttonLabel={t("admin.upload.chooseCover")}
+            onUploaded={setAudioCoverUrl}
+          />
+          <Input name="cover_url" label={t("admin.form.coverUrl")} dir="ltr" value={audioCoverUrl} onChange={(e) => setAudioCoverUrl(e.target.value)} />
           <Input name="duration_seconds" label={t("admin.form.duration")} type="number" min={0} dir="ltr" />
         </CardBody></Card>
       )}
@@ -158,8 +197,22 @@ export function ContentForm({
               </select>
             </Field>
           </div>
-          <Input name="file_url" label={t("admin.form.fileUrl")} dir="ltr" />
-          <Input name="cover_url" label={t("admin.form.coverUrl")} dir="ltr" />
+          <FileUploader
+            bucket="media-public"
+            prefix="books/"
+            accept=".pdf,.epub"
+            buttonLabel={t("admin.upload.chooseBook")}
+            onUploaded={setFileUrl}
+          />
+          <Input name="file_url" label={t("admin.form.fileUrl")} dir="ltr" value={fileUrl} onChange={(e) => setFileUrl(e.target.value)} />
+          <FileUploader
+            bucket="covers"
+            prefix="covers/"
+            accept="image/*"
+            buttonLabel={t("admin.upload.chooseCover")}
+            onUploaded={setBookCoverUrl}
+          />
+          <Input name="cover_url" label={t("admin.form.coverUrl")} dir="ltr" value={bookCoverUrl} onChange={(e) => setBookCoverUrl(e.target.value)} />
           <Input name="pages" label={t("admin.form.pages")} type="number" min={0} dir="ltr" />
           <p className="text-xs text-neutral-500">{t("admin.form.bookNote")}</p>
         </CardBody></Card>
@@ -170,9 +223,23 @@ export function ContentForm({
           <h2 className="font-bold">{t("admin.form.risalaDetails")}</h2>
           <div className="grid sm:grid-cols-2 gap-4">
             <Input name="issue_no" label={t("admin.form.issueNo")} />
-            <Input name="cover_url" label={t("admin.form.coverUrl")} dir="ltr" />
+            <Input name="cover_url" label={t("admin.form.coverUrl")} dir="ltr" value={risalaCoverUrl} onChange={(e) => setRisalaCoverUrl(e.target.value)} />
           </div>
-          <Input name="pdf_url" label={t("admin.form.pdfUrl")} dir="ltr" />
+          <FileUploader
+            bucket="covers"
+            prefix="covers/"
+            accept="image/*"
+            buttonLabel={t("admin.upload.chooseCover")}
+            onUploaded={setRisalaCoverUrl}
+          />
+          <Input name="pdf_url" label={t("admin.form.pdfUrl")} dir="ltr" value={pdfUrl} onChange={(e) => setPdfUrl(e.target.value)} />
+          <FileUploader
+            bucket="media-public"
+            prefix="risalas/"
+            accept=".pdf"
+            buttonLabel={t("admin.upload.chooseRisala")}
+            onUploaded={setPdfUrl}
+          />
         </CardBody></Card>
       )}
 
