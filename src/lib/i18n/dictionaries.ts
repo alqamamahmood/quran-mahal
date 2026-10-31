@@ -136,6 +136,17 @@ const en: Dict = {
   "pwa.install.title": "Install Quran Mahal app",
   "pwa.install.body": "Add to home screen for an app-like experience",
   "pwa.install.cta": "Install",
+  "admin.upload.choose": "Upload file",
+  "admin.upload.chooseVideo": "Upload video file",
+  "admin.upload.chooseAudio": "Upload audio file",
+  "admin.upload.chooseBook": "Upload book file (PDF/EPUB)",
+  "admin.upload.chooseRisala": "Upload risala PDF",
+  "admin.upload.chooseCover": "Upload cover image",
+  "admin.upload.uploading": "Uploading… please wait",
+  "admin.upload.done": "uploaded",
+  "admin.upload.failed": "Upload failed — please try again",
+  "admin.upload.tooBig": "File is too large (max ~50MB on the free plan). Use a smaller file or a YouTube link.",
+  "admin.upload.hint": "Or paste a link in the field below",
 };
 
 const ur: Dict = {
@@ -270,6 +281,17 @@ const ur: Dict = {
   "pwa.install.title": "قرآن محل ایپ انسٹال کریں",
   "pwa.install.body": "ایپ جیسے تجربے کے لیے ہوم اسکرین پر شامل کریں",
   "pwa.install.cta": "انسٹال کریں",
+  "admin.upload.choose": "فائل اپ لوڈ کریں",
+  "admin.upload.chooseVideo": "ویڈیو فائل اپ لوڈ کریں",
+  "admin.upload.chooseAudio": "آڈیو فائل اپ لوڈ کریں",
+  "admin.upload.chooseBook": "کتاب کی فائل اپ لوڈ کریں (PDF/EPUB)",
+  "admin.upload.chooseRisala": "رسالے کی PDF اپ لوڈ کریں",
+  "admin.upload.chooseCover": "کور کی تصویر اپ لوڈ کریں",
+  "admin.upload.uploading": "اپ لوڈ ہو رہی ہے… انتظار کریں",
+  "admin.upload.done": "اپ لوڈ ہو گئی",
+  "admin.upload.failed": "اپ لوڈ ناکام — دوبارہ کوشش کریں",
+  "admin.upload.tooBig": "فائل بہت بڑی ہے (مفت پلان پر زیادہ سے زیادہ ~50MB)۔ چھوٹی فائل یا یوٹیوب لنک استعمال کریں۔",
+  "admin.upload.hint": "یا نیچے والے خانے میں لنک لکھیں",
 };
 
 const roman: Dict = {
@@ -404,6 +426,17 @@ const roman: Dict = {
   "pwa.install.title": "Quran Mahal app install karein",
   "pwa.install.body": "App jaisa experience ke liye home screen par add karein",
   "pwa.install.cta": "Install karein",
+  "admin.upload.choose": "File upload karein",
+  "admin.upload.chooseVideo": "Video file upload karein",
+  "admin.upload.chooseAudio": "Audio file upload karein",
+  "admin.upload.chooseBook": "Kitaab ki file upload karein (PDF/EPUB)",
+  "admin.upload.chooseRisala": "Risale ki PDF upload karein",
+  "admin.upload.chooseCover": "Cover ki tasveer upload karein",
+  "admin.upload.uploading": "Upload ho rahi hai… intezar karein",
+  "admin.upload.done": "upload ho gayi",
+  "admin.upload.failed": "Upload nakam hua — dobara koshish karein",
+  "admin.upload.tooBig": "File bohat bari hai (free plan par max ~50MB). Choti file ya YouTube link use karein.",
+  "admin.upload.hint": "Ya neeche wale khane mein link likhein",
 };
 
 export const dictionaries: Record<UiLanguage, Dict> = { en, ur, roman };
