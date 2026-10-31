@@ -143,6 +143,7 @@ export function ContentForm({
             bucket="media-public"
             prefix="videos/"
             accept="video/*"
+            storage="r2"
             buttonLabel={t("admin.upload.chooseVideo")}
             onUploaded={setVideoUrl}
           />
