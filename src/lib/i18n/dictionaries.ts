@@ -148,6 +148,10 @@ const en: Dict = {
   "admin.upload.tooBig": "File is too large (max ~50MB on the free plan). Use a smaller file or a YouTube link.",
   "admin.upload.hint": "Max ~50MB per file",
   "admin.upload.required": "Please upload the file first",
+  "admin.upload.loginAgain": "Session expired — please log in again",
+  "admin.upload.cancel": "Cancel",
+  "admin.upload.cancelled": "Upload cancelled",
+  "footer.admin": "Admin",
 };
 
 const ur: Dict = {
@@ -294,6 +298,10 @@ const ur: Dict = {
   "admin.upload.tooBig": "فائل بہت بڑی ہے (مفت پلان پر زیادہ سے زیادہ ~50MB)۔ چھوٹی فائل یا یوٹیوب لنک استعمال کریں۔",
   "admin.upload.hint": "فی فائل زیادہ سے زیادہ ~50MB",
   "admin.upload.required": "پہلے فائل اپ لوڈ کریں",
+  "admin.upload.loginAgain": "سیشن ختم ہو گیا — دوبارہ لاگ اِن کریں",
+  "admin.upload.cancel": "منسوخ کریں",
+  "admin.upload.cancelled": "اپ لوڈ منسوخ کر دیا گیا",
+  "footer.admin": "ایڈمن",
 };
 
 const roman: Dict = {
@@ -440,6 +448,10 @@ const roman: Dict = {
   "admin.upload.tooBig": "File bohat bari hai (free plan par max ~50MB). Choti file ya YouTube link use karein.",
   "admin.upload.hint": "Fi file max ~50MB",
   "admin.upload.required": "Pehle file upload karein",
+  "admin.upload.loginAgain": "Session khatam ho gaya — dobara login karein",
+  "admin.upload.cancel": "Cancel karein",
+  "admin.upload.cancelled": "Upload cancel kar diya gaya",
+  "footer.admin": "Admin",
 };
 
 export const dictionaries: Record<UiLanguage, Dict> = { en, ur, roman };
