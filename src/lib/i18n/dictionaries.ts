@@ -133,6 +133,9 @@ const en: Dict = {
   "report.details": "Details (optional)",
   "report.submit": "Submit report",
   "report.done": "Report received. Thank you!",
+  "pwa.install.title": "Install Quran Mahal app",
+  "pwa.install.body": "Add to home screen for an app-like experience",
+  "pwa.install.cta": "Install",
 };
 
 const ur: Dict = {
@@ -264,6 +267,9 @@ const ur: Dict = {
   "report.details": "تفصیل (اختیاری)",
   "report.submit": "رپورٹ بھیجیں",
   "report.done": "رپورٹ مل گئی۔ شکریہ!",
+  "pwa.install.title": "قرآن محل ایپ انسٹال کریں",
+  "pwa.install.body": "ایپ جیسے تجربے کے لیے ہوم اسکرین پر شامل کریں",
+  "pwa.install.cta": "انسٹال کریں",
 };
 
 const roman: Dict = {
@@ -395,6 +401,9 @@ const roman: Dict = {
   "report.details": "Tafseel (optional)",
   "report.submit": "Report bhejein",
   "report.done": "Report mil gayi. Shukriya!",
+  "pwa.install.title": "Quran Mahal app install karein",
+  "pwa.install.body": "App jaisa experience ke liye home screen par add karein",
+  "pwa.install.cta": "Install karein",
 };
 
 export const dictionaries: Record<UiLanguage, Dict> = { en, ur, roman };
