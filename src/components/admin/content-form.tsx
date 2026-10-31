@@ -52,6 +52,14 @@ export function ContentForm({
   const [pdfUrl, setPdfUrl] = useState("");
   const [risalaCoverUrl, setRisalaCoverUrl] = useState("");
 
+  // Block saving until the required file is uploaded (prevents null-URL entries)
+  const canSave =
+    type === "video" ? videoUrl !== "" :
+    type === "audio" ? audioUrl !== "" :
+    type === "book" ? fileUrl !== "" :
+    type === "publication" ? pdfUrl !== "" :
+    true;
+
   return (
     <form action={createContent} className="space-y-5 max-w-3xl">
       {error && <p role="alert" className="rounded-xl bg-red-50 p-3 text-sm text-red-700">{error}</p>}
@@ -268,7 +276,12 @@ export function ContentForm({
         </CardBody></Card>
       )}
 
-      <Button type="submit" size="lg">{t("admin.form.saveBtn")}</Button>
+      <Button type="submit" size="lg" disabled={!canSave}>
+        {t("admin.form.saveBtn")}
+      </Button>
+      {!canSave && (
+        <p className="text-sm font-semibold text-amber-600">{t("admin.upload.required")}</p>
+      )}
     </form>
   );
 }
