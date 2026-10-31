@@ -67,9 +67,14 @@ export function Footer() {
         </nav>
       </div>
       <div className="border-t border-brand-100 dark:border-white/10">
-        <p className="mx-auto max-w-7xl px-4 py-4 text-xs text-neutral-500">
-          © {year} Quran Mahal. {t("footer.rights")}
-        </p>
+        <div className="mx-auto max-w-7xl px-4 py-4 flex items-center justify-between text-xs text-neutral-500">
+          <p>
+            © {year} Quran Mahal. {t("footer.rights")}
+          </p>
+          <Link href="/login?next=%2Fadmin" className="font-semibold hover:text-brand-700 dark:hover:text-brand-300">
+            🔐 {t("footer.admin")}
+          </Link>
+        </div>
       </div>
     </footer>
   );
