@@ -26,54 +26,6 @@ begin
 end;
 $$;
 
--- --------------------------------------------------------------------------
--- Role helpers.
--- SECURITY DEFINER so they bypass RLS (avoids infinite recursion when used
--- inside RLS policies). search_path is pinned for safety.
--- --------------------------------------------------------------------------
-create or replace function public.has_role(required_role text)
-returns boolean
-language sql
-security definer
-set search_path = public
-stable
-as $$
-  select exists (
-    select 1
-    from public.user_roles ur
-    join public.roles r on r.id = ur.role_id
-    where ur.user_id = auth.uid()
-      and r.name = required_role
-  );
-$$;
-
-create or replace function public.is_admin()
-returns boolean
-language sql
-security definer
-set search_path = public
-stable
-as $$
-  select public.has_role('administrator')
-      or public.has_role('super_administrator');
-$$;
-
-create or replace function public.has_any_role(variadic required_roles text[])
-returns boolean
-language sql
-security definer
-set search_path = public
-stable
-as $$
-  select exists (
-    select 1
-    from public.user_roles ur
-    join public.roles r on r.id = ur.role_id
-    where ur.user_id = auth.uid()
-      and r.name = any (required_roles)
-  );
-$$;
-
 -- ============================================================================
 -- TABLES
 -- ============================================================================
@@ -444,6 +396,57 @@ create table if not exists public.surahs (
   total_ayahs     int not null,
   revelation_type text check (revelation_type in ('Makki','Madani'))
 );
+
+-- --------------------------------------------------------------------------
+-- Role helpers.
+-- SECURITY DEFINER so they bypass RLS (avoids infinite recursion when used
+-- inside RLS policies). search_path is pinned for safety.
+-- NOTE: defined AFTER the tables because PostgreSQL validates SQL-language
+-- function bodies at CREATE time.
+-- --------------------------------------------------------------------------
+create or replace function public.has_role(required_role text)
+returns boolean
+language sql
+security definer
+set search_path = public
+stable
+as $$
+  select exists (
+    select 1
+    from public.user_roles ur
+    join public.roles r on r.id = ur.role_id
+    where ur.user_id = auth.uid()
+      and r.name = required_role
+  );
+$$;
+
+create or replace function public.is_admin()
+returns boolean
+language sql
+security definer
+set search_path = public
+stable
+as $$
+  select public.has_role('administrator')
+      or public.has_role('super_administrator');
+$$;
+
+create or replace function public.has_any_role(variadic required_roles text[])
+returns boolean
+language sql
+security definer
+set search_path = public
+stable
+as $$
+  select exists (
+    select 1
+    from public.user_roles ur
+    join public.roles r on r.id = ur.role_id
+    where ur.user_id = auth.uid()
+      and r.name = any (required_roles)
+  );
+$$;
+
 
 -- ============================================================================
 -- AUTH TRIGGER: create profile + assign 'user' role on signup
