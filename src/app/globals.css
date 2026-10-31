@@ -1,0 +1,75 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --font-sans: "Inter", system-ui, -apple-system, "Segoe UI", sans-serif;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  font-family: var(--font-sans);
+  background: #fffef9;
+  color: #1c1917;
+  -webkit-font-smoothing: antialiased;
+}
+
+.dark body {
+  background: #0c0a09;
+  color: #e7e5e4;
+}
+
+/* Subtle Islamic geometric pattern for hero / banners (kept restrained) */
+.pattern-bg {
+  background-color: #064e3b;
+  background-image: url("data:image/svg+xml,%3Csvg width='80' height='80' viewBox='0 0 80 80' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' stroke='%23f5b921' stroke-opacity='0.14' stroke-width='1'%3E%3Cpath d='M40 8l8 24 24 8-24 8-8 24-8-24-24-8 24-8z'/%3E%3Ccircle cx='40' cy='40' r='6'/%3E%3C/g%3E%3C/svg%3E");
+}
+
+.font-arabic {
+  font-family: "Amiri", "Scheherazade New", serif;
+  line-height: 2;
+}
+
+/* Accessible focus */
+:focus-visible {
+  outline: 2px solid #059669;
+  outline-offset: 2px;
+}
+
+/* Reduced motion */
+@media (prefers-reduced-motion: reduce) {
+  html { scroll-behavior: auto; }
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+
+/* Line clamp helpers (Tailwind has line-clamp built in v3.3+, keep fallback) */
+.line-clamp-1, .line-clamp-2 { overflow: hidden; display: -webkit-box; -webkit-box-orient: vertical; }
+.line-clamp-1 { -webkit-line-clamp: 1; }
+.line-clamp-2 { -webkit-line-clamp: 2; }
+
+/* Custom scrollbar */
+::-webkit-scrollbar { width: 10px; height: 10px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: #a7f3d0; border-radius: 8px; }
+.dark ::-webkit-scrollbar-thumb { background: #065f46; }
+
+/* Article typography */
+.article-body h1, .article-body h2, .article-body h3 {
+  font-weight: 800; margin: 1.25em 0 .5em; color: #064e3b;
+}
+.dark .article-body h1, .dark .article-body h2, .dark .article-body h3 { color: #a7f3d0; }
+.article-body p { margin: .75em 0; line-height: 1.9; }
+.article-body ul, .article-body ol { margin: .75em 0; padding-inline-start: 1.5em; }
+.article-body a { color: #047857; text-decoration: underline; }
+.article-body blockquote {
+  border-inline-start: 4px solid #f5b921; padding-inline-start: 1em;
+  margin: 1em 0; font-style: italic; color: #57534e;
+}
+.article-body table { width: 100%; border-collapse: collapse; margin: 1em 0; }
+.article-body th, .article-body td { border: 1px solid #d6d3d1; padding: .5em .75em; }
