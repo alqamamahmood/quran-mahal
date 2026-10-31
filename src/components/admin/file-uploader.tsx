@@ -17,12 +17,15 @@ export function FileUploader({
   accept,
   onUploaded,
   buttonLabel,
+  storage = "supabase",
 }: {
   bucket: string;
   prefix: string;
   accept: string;
   onUploaded: (url: string) => void;
   buttonLabel?: string;
+  /** "r2" = Cloudflare R2 via presigned URL (no 50MB limit); falls back to Supabase when R2 isn't configured */
+  storage?: "supabase" | "r2";
 }) {
   const { t } = useLanguage();
   const [state, setState] = useState<"idle" | "uploading" | "done" | "error">("idle");
@@ -36,49 +39,89 @@ export function FileUploader({
     xhrRef.current?.abort();
   };
 
+  const putWithProgress = (url: string, file: File, headers: Record<string, string>) =>
+    new Promise<void>((resolve, reject) => {
+      const xhr = new XMLHttpRequest();
+      xhrRef.current = xhr;
+      xhr.upload.onprogress = (e) => {
+        if (e.lengthComputable) setProgress(Math.round((e.loaded / e.total) * 100));
+      };
+      xhr.onload = () => {
+        if (xhr.status >= 200 && xhr.status < 300) resolve();
+        else reject(new Error(t("admin.upload.failed") + ` (${xhr.status})`));
+      };
+      xhr.onerror = () => reject(new Error(t("admin.upload.failed")));
+      xhr.onabort = () => reject(new Error(t("admin.upload.cancelled")));
+      xhr.open("PUT", url);
+      for (const [k, v] of Object.entries(headers)) xhr.setRequestHeader(k, v);
+      xhr.send(file);
+    });
+
+  const uploadViaSupabase = async (supabase: any, file: File) => {
+    const { data: { session } } = await supabase.auth.getSession();
+    if (!session?.access_token) throw new Error(t("admin.upload.loginAgain"));
+    const baseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
+    const anonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
+    const safe = file.name.replace(/[^a-zA-Z0-9._-]/g, "_");
+    const path = `${prefix}${Date.now()}-${safe}`;
+    const url = `${baseUrl}/storage/v1/object/${bucket}/${path}`;
+    await putWithProgress(url, file, {
+      Authorization: `Bearer ${session.access_token}`,
+      apikey: anonKey || "",
+      ...(file.type ? { "Content-Type": file.type } : {}),
+    });
+    const { data } = supabase.storage.from(bucket).getPublicUrl(path);
+    return data.publicUrl as string;
+  };
+
+  const uploadViaR2 = async (file: File): Promise<string | null> => {
+    // Returns null when R2 isn't configured → caller falls back to Supabase
+    const res = await fetch("/api/r2/presign", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        filename: file.name,
+        contentType: file.type || "application/octet-stream",
+        size: file.size,
+        prefix,
+      }),
+    });
+    if (res.status === 501) return null;
+    if (!res.ok) {
+      const j = await res.json().catch(() => ({}));
+      throw new Error(j.error || t("admin.upload.failed"));
+    }
+    const { uploadUrl, publicUrl } = await res.json();
+    await putWithProgress(
+      uploadUrl,
+      file,
+      file.type ? { "Content-Type": file.type } : {}
+    );
+    return publicUrl as string;
+  };
+
   const upload = async (file: File) => {
     setError("");
-    if (file.size > MAX_BYTES) {
-      setState("error");
-      setError(t("admin.upload.tooBig"));
-      return;
-    }
     setState("uploading");
     setProgress(0);
     setFileName(file.name);
     try {
       const supabase = createClient();
-      const {
-        data: { session },
-      } = await supabase.auth.getSession();
-      if (!session?.access_token) throw new Error(t("admin.upload.loginAgain"));
-      const baseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
-      const anonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
-      const safe = file.name.replace(/[^a-zA-Z0-9._-]/g, "_");
-      const path = `${prefix}${Date.now()}-${safe}`;
-      const url = `${baseUrl}/storage/v1/object/${bucket}/${path}`;
+      let publicUrl: string | null = null;
 
-      await new Promise<void>((resolve, reject) => {
-        const xhr = new XMLHttpRequest();
-        xhrRef.current = xhr;
-        xhr.upload.onprogress = (e) => {
-          if (e.lengthComputable) setProgress(Math.round((e.loaded / e.total) * 100));
-        };
-        xhr.onload = () => {
-          if (xhr.status >= 200 && xhr.status < 300) resolve();
-          else reject(new Error(t("admin.upload.failed") + ` (${xhr.status})`));
-        };
-        xhr.onerror = () => reject(new Error(t("admin.upload.failed")));
-        xhr.onabort = () => reject(new Error(t("admin.upload.cancelled")));
-        xhr.open("PUT", url);
-        xhr.setRequestHeader("Authorization", `Bearer ${session.access_token}`);
-        xhr.setRequestHeader("apikey", anonKey || "");
-        if (file.type) xhr.setRequestHeader("Content-Type", file.type);
-        xhr.send(file);
-      });
+      if (storage === "r2") {
+        // Large files → R2 (no 50MB cap). Falls back to Supabase if R2 isn't set up yet.
+        publicUrl = await uploadViaR2(file);
+      }
+      if (!publicUrl) {
+        // Supabase path (free-tier 50MB guard)
+        if (file.size > MAX_BYTES) {
+          throw new Error(t("admin.upload.tooBig"));
+        }
+        publicUrl = await uploadViaSupabase(supabase, file);
+      }
 
-      const { data } = supabase.storage.from(bucket).getPublicUrl(path);
-      onUploaded(data.publicUrl);
+      onUploaded(publicUrl);
       setState("done");
     } catch (e: any) {
       setState("error");
