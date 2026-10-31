@@ -5,6 +5,7 @@ import { Header } from "@/components/layout/header";
 import { Footer } from "@/components/layout/footer";
 import { BottomNav } from "@/components/layout/bottom-nav";
 import { MiniPlayer } from "@/components/media/mini-player";
+import { PwaManager } from "@/components/pwa/pwa-manager";
 import { getUser } from "@/lib/supabase/server";
 import { isSupabaseConfigured } from "@/lib/supabase/client";
 import { getServerLang } from "@/lib/i18n/server";
@@ -47,7 +48,7 @@ export default async function RootLayout({ children }: { children: React.ReactNo
           rel="stylesheet"
         />
         <link rel="icon" href="/icons/icon.svg" type="image/svg+xml" />
-        <link rel="apple-touch-icon" href="/icons/icon.svg" />
+        <link rel="apple-touch-icon" href="/icons/icon-180.png" />
       </head>
       <body className="min-h-screen bg-ivory dark:bg-neutral-950">
         <Providers initialLang={lang}>
@@ -58,6 +59,7 @@ export default async function RootLayout({ children }: { children: React.ReactNo
           <Footer />
           <BottomNav />
           <MiniPlayer />
+          <PwaManager />
         </Providers>
       </body>
     </html>
