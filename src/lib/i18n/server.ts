@@ -2,7 +2,7 @@ import { cookies } from "next/headers";
 import { dictionaries, rtlLanguages, t as translate, LANG_COOKIE } from "./dictionaries";
 import type { UiLanguage } from "@/lib/types";
 
-export const DEFAULT_LANG: UiLanguage = "ur";
+export const DEFAULT_LANG: UiLanguage = "roman";
 
 function parseLang(v: string | undefined): UiLanguage {
   return v === "en" || v === "ur" || v === "roman" ? v : DEFAULT_LANG;

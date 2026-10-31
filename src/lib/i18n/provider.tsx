@@ -13,10 +13,10 @@ interface LangCtx {
 }
 
 const LanguageContext = createContext<LangCtx>({
-  lang: "ur",
+  lang: "roman",
   setLang: () => {},
   t: (k) => k,
-  dir: "rtl",
+  dir: "ltr",
 });
 
 export function LanguageProvider({
