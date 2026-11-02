@@ -104,10 +104,32 @@ export async function POST(req: Request) {
     return NextResponse.json({ error: "R2 not configured" }, { status: 501 });
   }
 
-  // Staff-only
-  const user = await getUser();
+  // Staff-only — supports both web cookie sessions and mobile Bearer tokens
+  const authHeader = req.headers.get("authorization");
+  let user = null;
+  let roles = [];
+  if (authHeader?.startsWith("Bearer ")) {
+    // Mobile app: validate Supabase JWT directly
+    const token = authHeader.slice(7);
+    const { createClient } = await import("@supabase/supabase-js");
+    const sb = createClient(
+      process.env.NEXT_PUBLIC_SUPABASE_URL,
+      process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
+    );
+    const { data } = await sb.auth.getUser(token);
+    user = data.user;
+    if (user) {
+      const { data: roleRows } = await sb
+        .from("user_roles")
+        .select("roles(name)")
+        .eq("user_id", user.id);
+      roles = (roleRows ?? []).map((r) => r.roles?.name).filter(Boolean);
+    }
+  } else {
+    user = await getUser();
+    if (user) roles = await getUserRoles();
+  }
   if (!user) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-  const roles = await getUserRoles();
   if (!roles.some((r) => STAFF_ROLES.includes(r))) {
     return NextResponse.json({ error: "Forbidden" }, { status: 403 });
   }
