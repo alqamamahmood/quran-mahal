@@ -106,27 +106,29 @@ export async function POST(req: Request) {
 
   // Staff-only — supports both web cookie sessions and mobile Bearer tokens
   const authHeader = req.headers.get("authorization");
-  let user = null;
-  let roles = [];
+  let user: { id: string } | null = null;
+  let roles: string[] = [];
   if (authHeader?.startsWith("Bearer ")) {
     // Mobile app: validate Supabase JWT directly
     const token = authHeader.slice(7);
     const { createClient } = await import("@supabase/supabase-js");
-    const sb = createClient(
-      process.env.NEXT_PUBLIC_SUPABASE_URL,
-      process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
-    );
+    const url = process.env.NEXT_PUBLIC_SUPABASE_URL as string;
+    const anonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY as string;
+    const sb = createClient(url, anonKey);
     const { data } = await sb.auth.getUser(token);
-    user = data.user;
+    user = data.user ? { id: data.user.id } : null;
     if (user) {
       const { data: roleRows } = await sb
         .from("user_roles")
         .select("roles(name)")
         .eq("user_id", user.id);
-      roles = (roleRows ?? []).map((r) => r.roles?.name).filter(Boolean);
+      roles = ((roleRows ?? []) as unknown as Array<{ roles: { name: string } | null }>)
+        .map((r) => r.roles?.name)
+        .filter((n): n is string => Boolean(n));
     }
   } else {
-    user = await getUser();
+    const u = await getUser();
+    user = u ? { id: u.id } : null;
     if (user) roles = await getUserRoles();
   }
   if (!user) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
