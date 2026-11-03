@@ -376,3 +376,61 @@ export async function reviewReport(formData: FormData) {
   await audit("report.review", "reports", id, { status });
   revalidatePath("/admin/reports");
 }
+
+/* ---------- Team invites ---------- */
+
+import { randomBytes } from "crypto";
+
+const INVITE_ROLES = ["editor", "content_manager", "administrator"] as const;
+
+export async function createInvite(formData: FormData): Promise<void> {
+  await requireAdmin();
+  const supabase = await createClient();
+  const { data: { user } } = await supabase.auth.getUser();
+  if (!user) return;
+
+  const email = String(formData.get("email") || "").trim().toLowerCase();
+  const roleName = String(formData.get("role") || "content_manager");
+
+  if (!email || !email.includes("@")) return;
+  if (!(INVITE_ROLES as readonly string[]).includes(roleName)) return;
+
+  // Only super_admin can invite administrators
+  const myRoles = (
+    (await supabase.from("user_roles").select("roles(name)").eq("user_id", user.id)).data ?? []
+  ) as unknown as Array<{ roles: { name: string } | null }>;
+  const roleNames = myRoles.map((r) => r.roles?.name);
+  if (roleName === "administrator" && !roleNames.includes("super_administrator")) return;
+
+  // Check if user already exists
+  const { data: existing } = await supabase
+    .from("profiles").select("id").eq("email", email).single();
+  if (existing) return;
+
+  // Check for pending invite
+  const { data: pending } = await supabase
+    .from("invites").select("id")
+    .eq("email", email).is("used_at", null)
+    .gt("expires_at", new Date().toISOString()).single();
+  if (pending) return;
+
+  const token = randomBytes(32).toString("hex");
+  await supabase.from("invites").insert({
+    email,
+    role_name: roleName,
+    token,
+    created_by: user.id,
+  });
+
+  await audit("invite.create", "invites", email, { role: roleName });
+  revalidatePath("/admin/users");
+}
+
+export async function revokeInvite(formData: FormData): Promise<void> {
+  await requireAdmin();
+  const supabase = await createClient();
+  const id = String(formData.get("id"));
+  await supabase.from("invites").delete().eq("id", id);
+  await audit("invite.revoke", "invites", id);
+  revalidatePath("/admin/users");
+}
