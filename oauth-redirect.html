@@ -1,0 +1,19 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Quran Mahal — Facebook Login</title>
+<script>
+  // Facebook OAuth bridge: Facebook only allows HTTPS redirect URIs, so the
+  // dialog lands here and this page forwards the full query string
+  // (code/state, or error details) to the Quran Mahal app's custom scheme.
+  (function () {
+    var target = 'quranmahal://fb-oauth' + window.location.search;
+    window.location.replace(target);
+  })();
+</script>
+</head>
+<body>
+<p>Quran Mahal app khul rahi hai… If the app does not open automatically, please return to the app manually.</p>
+</body>
+</html>
